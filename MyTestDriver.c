@@ -82,6 +82,7 @@ MyTestDriverUnload (
   UINTN       Index;
 
   Status = EFI_SUCCESS;
+  
   //
   // Retrieve array of all handles in the handle database
   //
@@ -160,14 +161,17 @@ MyTestDriverDriverEntryPoint (
   )
 {
   EFI_STATUS  Status;
-  EFI_HII_PACKAGE_LIST_HEADER  *PackageListHeader;
-  EFI_HII_DATABASE_PROTOCOL    *HiiDatabase;
-  EFI_HII_HANDLE               HiiHandle[2];
-  EFI_STRING                   ConfigRequestHdr;
-  UINTN                        BufferSize;
+  EFI_HII_PACKAGE_LIST_HEADER     *PackageListHeader;
+  EFI_HII_DATABASE_PROTOCOL       *HiiDatabase;
+  EFI_HII_HANDLE                   HiiHandle[2];
+  EFI_HII_STRING_PROTOCOL         *HiiString;
+  EFI_FORM_BROWSER2_PROTOCOL      *FormBrowser2;
+  EFI_HII_CONFIG_ROUTING_PROTOCOL *HiiConfigRouting;
+  EFI_STRING                       ConfigRequestHdr;
+  UINTN                            BufferSize;
 
   Status = EFI_SUCCESS;
-  DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: run"));
+
   //
   // Install UEFI Driver Model protocol(s).
   //
@@ -179,13 +183,11 @@ MyTestDriverDriverEntryPoint (
              &gMyTestDriverComponentName,
              &gMyTestDriverComponentName2
              );
-  DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: EfiLibInstallDriverBindingComponentName2"));
   ASSERT_EFI_ERROR (Status);
 
   ConfigRequestHdr = NULL;
   PrivateData = AllocateZeroPool (sizeof(MYTESTDRIVER_DEV));
   if (PrivateData == NULL){
-     DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: PrivateData == NULL"));
     return EFI_OUT_OF_RESOURCES;
   }
   
@@ -194,6 +196,39 @@ MyTestDriverDriverEntryPoint (
   PrivateData->ConfigAccess.ExtractConfig = MyTestDriverHiiConfigAccessExtractConfig;
   PrivateData->ConfigAccess.RouteConfig = MyTestDriverHiiConfigAccessRouteConfig;
   PrivateData->ConfigAccess.Callback = MyTestDriverHiiConfigAccessCallback;
+
+
+  // Locate Hii Database protocol
+
+  Status = gBS->LocateProtocol(&gEfiHiiDatabaseProtocolGuid, NULL, (VOID **)&HiiDatabase);
+  if (EFI_ERROR(Status)){
+    return Status;
+  }
+  PrivateData->HiiDatabase = HiiDatabase;
+
+  // Locate HiiString protocol
+
+  Status = gBS->LocateProtocol(&gEfiHiiStringProtocolGuid, NULL, (VOID **)&HiiString);
+  if (EFI_ERROR(Status)){
+    return Status;
+  }
+  PrivateData->HiiString = HiiString;
+
+  // Locate Formbrowser2 protocol
+
+  Status = gBS->LocateProtocol(&gEfiFormBrowser2ProtocolGuid, NULL, (VOID **)&FormBrowser2);
+  if (EFI_ERROR(Status)){
+    return Status;
+  }
+  PrivateData->FormBrowser2 = FormBrowser2;
+
+  // Locate ConfigRouting protocol
+
+  Status = gBS->LocateProtocol(&gEfiHiiConfigRoutingProtocolGuid, NULL, (VOID **)&HiiConfigRouting);
+  if (EFI_ERROR(Status)){
+    return Status;
+  }
+  PrivateData->HiiConfigRouting = HiiConfigRouting;
 
   //
   // Publish sample Formset and config access
@@ -206,7 +241,6 @@ MyTestDriverDriverEntryPoint (
                   &PrivateData->ConfigAccess,
                   NULL
                   );
-   DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: InstallMultipleProtocolInterfaces"));
   ASSERT_EFI_ERROR(Status);
   PrivateData->DriverHandle[0] = mDriverHandle[0];
   //
@@ -220,30 +254,29 @@ MyTestDriverDriverEntryPoint (
                   NULL,
                   EFI_OPEN_PROTOCOL_GET_PROTOCOL
                   );
-  DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: OpenProtocol"));
+  // DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: OpenProtocol"));
+  // if (!EFI_ERROR (Status)) {
+  //   //
+  //   // Retrieve the pointer to the UEFI HII Database Protocol 
+  //   //
+  //   Status = gBS->LocateProtocol (
+  //                   &gEfiHiiDatabaseProtocolGuid, 
+  //                   NULL, 
+  //                   (VOID **)&HiiDatabase
+  //                   );
   if (!EFI_ERROR (Status)) {
-    //
-    // Retrieve the pointer to the UEFI HII Database Protocol 
-    //
-    Status = gBS->LocateProtocol (
-                    &gEfiHiiDatabaseProtocolGuid, 
-                    NULL, 
-                    (VOID **)&HiiDatabase
-                    );
-    DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: LocateProtocol"));
-    if (!EFI_ERROR (Status)) {
       //
       // Register list of HII packages in the HII Database
       //
-      Status = HiiDatabase->NewPackageList (
+    Status = HiiDatabase->NewPackageList (
                               HiiDatabase, 
                               PackageListHeader,
                               mDriverHandle[0], 
                               &HiiHandle[0]
                               );
-      ASSERT_EFI_ERROR (Status);
-    }
+    ASSERT_EFI_ERROR (Status);
   }
+  
   Status = EFI_SUCCESS;
 
   PrivateData->HiiHandle[0] = HiiHandle[0];
