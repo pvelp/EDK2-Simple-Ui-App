@@ -1,0 +1,62 @@
+## @file
+#  TODO: Brief Description of UEFI Driver MyTestDriver
+#  
+#  TODO: Detailed Description of UEFI Driver MyTestDriver
+#
+#  TODO: Copyright for UEFI Driver MyTestDriver
+#  
+#  TODO: License for UEFI Driver MyTestDriver
+#  
+##
+
+[Defines]
+  INF_VERSION               = 0x00010005
+  BASE_NAME                 = MyTestDriver
+  FILE_GUID                 = f274b470-efe4-11ed-a6de-00583f0040f6
+  MODULE_TYPE               = UEFI_DRIVER
+  VERSION_STRING            = 1.0
+  ENTRY_POINT               = MyTestDriverDriverEntryPoint
+  UNLOAD_IMAGE              = MyTestDriverUnload
+  UEFI_HII_RESOURCE_SECTION = TRUE
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[Sources]
+  MyTestDriver.h
+  MyTestDriver.c
+  ComponentName.c
+  ComponentName.h
+  MyTestDriver.uni
+  MyTestDriver.vfr
+  HiiConfigAccess.c
+  HiiConfigAccess.h
+  MyTestDriverNVDataStruc.h
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiBootServicesTableLib
+  MemoryAllocationLib
+  BaseMemoryLib
+  BaseLib
+  UefiLib
+  DevicePathLib
+  DebugLib
+
+[Protocols]
+  gEfiDriverBindingProtocolGuid
+  gEfiPciIoProtocolGuid
+  gEfiDriverSupportedEfiVersionProtocolGuid
+  gEfiHiiPackageListProtocolGuid
+  gEfiHiiDatabaseProtocolGuid
+  gEfiComponentName2ProtocolGuid
+  gEfiComponentNameProtocolGuid
+  gEfiHiiConfigAccessProtocolGuid
+  gEfiSerialIoProtocolGuid
+  gEfiHiiStringProtocolGuid ## CONSUMES
+  gEfiHiiConfigRoutingProtocolGuid ## CONSUMES
+  gEfiFormBrowser2ProtocolGuid ## CONSUMES
+  gEfiHiiDatabaseProtocolGuid ## CONSUMES
+
+[Guids]
+
