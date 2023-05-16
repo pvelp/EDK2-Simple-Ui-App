@@ -256,7 +256,7 @@ MyTestDriverDriverEntryPoint (
                   NULL,
                   EFI_OPEN_PROTOCOL_GET_PROTOCOL
                   );
-  // DEBUG ((DEBUG_INFO, "\n:: MyTestDriverEntryPoint: OpenProtocol"));
+
   // if (!EFI_ERROR (Status)) {
   //   //
   //   // Retrieve the pointer to the UEFI HII Database Protocol 
