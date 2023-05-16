@@ -13,7 +13,7 @@
 
 EFI_GUID          mMyTestDriverFormSetGuid = MYTESTDRIVER_FORMSET_GUID;
 
-CHAR16            mIfrVariableName[] = L"MTD_IftNVData";
+CHAR16            mIfrVariableName[] = L"MTD_IfrNVData";
 EFI_HANDLE        mDriverHandle[2] = {NULL, NULL};
 MYTESTDRIVER_DEV  *PrivateData = NULL;
 
@@ -169,6 +169,8 @@ MyTestDriverDriverEntryPoint (
   EFI_HII_CONFIG_ROUTING_PROTOCOL *HiiConfigRouting;
   EFI_STRING                       ConfigRequestHdr;
   UINTN                            BufferSize;
+  MYTESTDRIVER_CONFIGURATION      *Configuration;
+  BOOLEAN                          ActionFlag;
 
   Status = EFI_SUCCESS;
 
@@ -283,25 +285,47 @@ MyTestDriverDriverEntryPoint (
 
   BufferSize = sizeof(MYTESTDRIVER_CONFIGURATION);
 
+  // init configuration data
+
+  Configuration = &PrivateData->Configuration;
+  ZeroMem (Configuration, sizeof(MYTESTDRIVER_CONFIGURATION));
+
+  // try to read MV config EFI var first
+
+  ConfigRequestHdr = HiiConstructConfigHdr(&mMyTestDriverFormSetGuid, mIfrVariableName, mDriverHandle[0]);
+  ASSERT(ConfigRequestHdr != NULL);
+
  // IF driver is not part of the Platform then need to get/set defaults for the NVRAM configuration that the driver will use.
   Status = gRT->GetVariable (
                   mIfrVariableName,
                   &mMyTestDriverFormSetGuid,
                   NULL,
                   &BufferSize,
-                  &PrivateData->Configuration
+                  // &PrivateData->Configuration
+                  Configuration
                   );
   if (EFI_ERROR (Status)) { // Not definded yet so add it to the NV Variables.
     // zero out buffer
-    ZeroMem (&PrivateData->Configuration, sizeof (MYTESTDRIVER_CONFIGURATION));
+    // ZeroMem (&PrivateData->Configuration, sizeof (MYTESTDRIVER_CONFIGURATION));
     Status = gRT->SetVariable(
                     mIfrVariableName,
                     &mMyTestDriverFormSetGuid,
                     EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS,
                     sizeof (MYTESTDRIVER_CONFIGURATION),
-                    &PrivateData->Configuration // buffer is 000000 now
+                    Configuration
+                    // &PrivateData->Configuration // buffer is 000000 now
                     );
+
+  // EFI var for NV config doesn't exist, we should build this var based on default values stored in IFR
+
+  ActionFlag = HiiSetToDefaults(ConfigRequestHdr, EFI_HII_DEFAULT_CLASS_STANDARD);
+  ASSERT(ActionFlag);
+  } else {
+    ActionFlag = HiiValidateSettings(ConfigRequestHdr);
+    ASSERT(ActionFlag);
   }
+  FreePool(ConfigRequestHdr);
+
   //
   // Install Driver Supported EFI Version Protocol onto ImageHandle
   //

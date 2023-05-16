@@ -22,10 +22,12 @@
 typedef struct 
 {
 
-    UINT16 MyTestDriverStringData[20];
-    UINT8 MyTestDriverHexData;
-    UINT8 MyTestDriverBaseAddress;
-    UINT8 MyTestDriverChooseToEnable;
+    UINT16          MyTestDriverStringData[20];
+    UINT8           MyTestDriverHexData;
+    UINT8           MyTestDriverBaseAddress;
+    UINT8           MyTestDriverChooseToEnable;
+    EFI_HII_TIME    Time;
+    EFI_HII_DATE    Date;
 
 } MYTESTDRIVER_CONFIGURATION;
 

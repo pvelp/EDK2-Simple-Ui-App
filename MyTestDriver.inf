@@ -21,6 +21,7 @@
 
 [Packages]
   MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
 
 [Sources]
   MyTestDriver.h
@@ -42,6 +43,7 @@
   UefiLib
   DevicePathLib
   DebugLib
+  HiiLib
 
 [Protocols]
   gEfiDriverBindingProtocolGuid

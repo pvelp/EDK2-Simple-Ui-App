@@ -8,6 +8,9 @@ formset
       varstore MYTESTDRIVER_CONFIGURATION,
       name = MTD_IfrNVData,
       guid = MYTESTDRIVER_FORMSET_GUID; 
+  defaultstore MyStandardDefault, 
+      prompt = STRING_TOKEN(STR_STANDARD_DEFAULT_PROMPT),
+      attribute = 0x0000;
 
   form formid = 1, title = STRING_TOKEN(STR_SAMPLE_FORM1_TITLE);
     subtitle text = STRING_TOKEN(STR_SUBTITLE_TEXT);
@@ -25,6 +28,95 @@ formset
         key = 0,
         default = 1,
     endcheckbox;
+
+    grayoutif ideqval MTD_IfrNVData.MyTestDriverChooseToEnable == 0x0;
+      oneof name = MyOneOf2,
+        varid = MTD_IfrNVData.MyTestDriverBaseAddress,
+        prompt = STRING_TOKEN(STR_ONE_OF_PROMPT),
+        help = STRING_TOKEN(STR_ONE_OF_HELP),
+        // define an option EFI_IFR_ONE_OF_OPTION
+        option text = STRING_TOKEN(STR_ONE_OF_TEXT3), value = 0x0, flags = 0;
+        option text = STRING_TOKEN(STR_ONE_OF_TEXT2), value = 0x1, flags = 0;
+        option text = STRING_TOKEN(STR_ONE_OF_TEXT1), value = 0x2, flags = DEFAULT;
+      endoneof;
+    endif;
+
+    grayoutif TRUE;
+      date year varid = Date.Year,
+          prompt = STRING_TOKEN(STR_DATE_PROMPT),
+          help = STRING_TOKEN(STR_DATE_HELP),
+          minimum = 1998,
+          maximum = 2099,
+          step = 1,
+          default = 2023,
+
+          month varid = Date.Month,
+          prompt = STRING_TOKEN(STR_DATE_PROMPT),
+          help = STRING_TOKEN(STR_DATE_HELP),
+          minimum = 1,
+          maximum = 12,
+          step = 1,
+          default = 1,
+
+          day varid = Date.Day,
+          prompt = STRING_TOKEN(STR_DATE_PROMPT),
+          help = STRING_TOKEN(STR_DATE_HELP),
+          minimum = 1,
+          maximum = 31,
+          step = 1,
+          default = 1,
+      enddate;
+    endif;
+
+    grayoutif TRUE;
+      time hour varid = Time.Hour, 
+          prompt = STRING_TOKEN(STR_TIME_PROMPT),
+          help = STRING_TOKEN(STR_TIME_HELP),
+          minimum = 0,
+          maximum = 23,
+          step = 1,
+          default = 0,
+        
+          minute varid = Time.Minute,
+          prompt = STRING_TOKEN(STR_TIME_PROMPT),
+          help = STRING_TOKEN(STR_TIME_HELP),
+          minimum = 0,
+          maximum = 59,
+          step = 1,
+          default = 0,
+
+          second varid = Time.Second,
+          prompt = STRING_TOKEN(STR_TIME_PROMPT),
+          help = STRING_TOKEN(STR_TIME_HELP),
+          minimum = 0,
+          maximum = 59,
+          step = 1,
+          default = 0,
+      endtime;
+    endif;
+
+    date varid = MTD_IfrNVData.Date,
+        prompt = STRING_TOKEN(STR_MY_DATE_PROMPT),
+        help = STRING_TOKEN(STR_DATE_HELP),
+        flags = STORAGE_NORMAL,
+        default = 2023/01/01,
+    enddate;
+
+    time
+        name = MyTimeMTD,
+        varid = MTD_IfrNVData.Time,
+        prompt = STRING_TOKEN(STR_MY_TIME_PROMPT),
+        help = STRING_TOKEN(STR_TIME_HELP),
+        flags = STORAGE_NORMAL,
+        default = 15:33:33,
+    endtime;
+
+    resetbutton
+        defaultstore = MyStandardDefault,
+        prompt = STRING_TOKEN(STR_STANDARD_DEFAULT_PROMPT_RESET),
+        help = STRING_TOKEN(STR_STANDARD_DEFAULT_HELP),
+    endresetbutton;
+
   endform;
 
 endformset;

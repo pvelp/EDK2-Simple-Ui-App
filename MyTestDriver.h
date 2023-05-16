@@ -24,7 +24,7 @@
 #include <Library/UefiLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/DebugLib.h>
-
+#include <Library/HiiLib.h>
 
 #include <Library/UefiRuntimeServicesTableLib.h>
 //
